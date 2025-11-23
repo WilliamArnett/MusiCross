@@ -1,14 +1,130 @@
+using System;
+using TMPro;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class GridSpawner : MonoBehaviour
 {
     public GameObject squarePrefab;
     public GameObject linePrefab;
-    public int gridWidth = 10;
-    public int gridHeight = 10;
+    public GameObject numberLabelPrefab;
+    public int gridWidth;
+    public int gridHeight;
     public float spacing = 1.1f; // space between squares
     public float padding = 0.1f;
 
+    private string[] rowHintNumbers;
+    private string[] colHintNumbers;
+    // private int[,] solvePattern = {
+    //     {0,0,0,0,0,0,0,0,0,0},
+    //     {0,0,0,0,1,1,1,1,1,0},
+    //     {0,0,0,1,1,1,1,1,1,0},
+    //     {0,0,0,1,0,0,0,0,1,0},
+    //     {0,0,0,1,0,0,0,0,1,0},
+    //     {0,0,0,1,0,0,0,0,1,0},
+    //     {0,0,0,1,0,0,1,1,1,0},
+    //     {0,1,1,1,0,0,1,1,1,0},
+    //     {0,1,1,1,0,0,0,0,0,0},
+    //     {0,0,0,0,0,0,0,0,0,0},
+
+    // };
+    private int[,] solvePattern = {
+        {0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+        {0,0,0,0,1,1,1,1,1,0,0,0,0,0},
+        {0,0,0,1,1,1,1,1,1,0,0,0,0,0},
+        {0,0,0,1,0,0,0,0,1,0,0,0,0,0},
+        {0,0,0,1,0,0,0,0,1,0,0,0,0,0},
+        {0,0,0,1,0,0,0,0,1,0,0,0,0,0},
+        {0,0,0,1,0,0,1,1,1,0,0,0,0,0},
+        {0,1,1,1,0,0,1,1,1,0,0,0,0,0},
+        {0,1,1,1,0,0,0,0,0,0,0,0,0,0},
+        {0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+
+    };
+    void GenHintNumbers()
+    {
+        rowHintNumbers = new string[gridHeight];
+        colHintNumbers = new string[gridWidth];
+        string defaultText;
+        // bool counting = false;
+        int cellcount = 0;
+        int howManySegments;
+        for (int i = 0; i < gridHeight; i++)
+        {
+            howManySegments = 0;
+            defaultText = "";
+            for (int j = 0; j < gridWidth; j++)
+            {
+                if (solvePattern[i, j] == 1)
+                {
+                    cellcount++;
+                }
+                else
+                {
+                    if (cellcount != 0)
+                    {
+                        defaultText += " " + cellcount.ToString();
+                        howManySegments++;
+                    }
+                    cellcount = 0;
+                }
+            }
+            if (cellcount != 0)
+            {
+                defaultText += " " + cellcount.ToString();
+                howManySegments++;
+            }
+            cellcount = 0;
+
+            if (howManySegments == 0)
+            {
+                defaultText = "0";
+            }
+            rowHintNumbers[i] = defaultText;
+            // Debug.Log("Row " + i.ToString() + "with " + howManySegments.ToString()+ "segments : " + defaultText);
+        }
+        for (int i = 0; i < gridWidth; i++)
+        {
+            howManySegments = 0;
+            defaultText = "";
+            for (int j = 0; j < gridHeight; j++)
+            {
+                if (solvePattern[j, i] == 1)
+                {
+                    cellcount++;
+                }
+                else
+                {
+                    if (cellcount != 0)
+                    {
+                        defaultText += " " + cellcount.ToString();
+                        howManySegments++;
+                    }
+                    cellcount = 0;
+                }
+            }
+            if (cellcount != 0)
+            {
+                defaultText += " " + cellcount.ToString();
+                howManySegments++;
+            }
+            cellcount = 0;
+
+            if (howManySegments == 0)
+            {
+                defaultText = "0";
+            }
+            colHintNumbers[i] = defaultText;
+        }
+        for (int k = 0; k < gridHeight; k++)
+        {
+            Debug.Log("Row " + k.ToString() + ": " + rowHintNumbers[k]);
+        }
+        for (int k = 0; k < gridWidth; k++)
+        {
+            Debug.Log("Col " + k.ToString() + ": "+colHintNumbers[k]);           
+        }
+    }
     void Start()
     {
         if (squarePrefab == null || linePrefab == null)
@@ -18,8 +134,10 @@ public class GridSpawner : MonoBehaviour
         }
         Vector2 squareSize = squarePrefab.GetComponent<SpriteRenderer>().bounds.size;
         float xStep = squareSize.x + padding;
-        float yStep = squareSize.y + padding;     
-        // center the grid roughly around origin
+        float yStep = squareSize.y + padding;
+
+        //print hint numbers
+        GenHintNumbers();
 
         Vector2 start = new Vector2(
             -((gridWidth - 1) * xStep) / 2f,
@@ -29,11 +147,29 @@ public class GridSpawner : MonoBehaviour
         // Spawn squares
         for (int y = 0; y < gridHeight; y++)
         {
+            Vector3 labelPos = new Vector3(start.x, start.y + y * yStep, 0f);
+            GameObject label = Instantiate(numberLabelPrefab, labelPos, Quaternion.identity, transform);
+            var tmp = label.GetComponent<TextMeshPro>();
+            tmp.text = rowHintNumbers[gridHeight - y - 1];
+            tmp.ForceMeshUpdate();
+            Bounds b = tmp.textBounds;
+            label.transform.position = new Vector3(start.x -squareSize.x*(10.7f), label.transform.position.y, 0);
+            tmp.alignment = TextAlignmentOptions.Right;
+            tmp.color = Color.black;
+            tmp.fontSize = 40f;
+            label.transform.localScale = Vector3.one * 0.2f;
             for (int x = 0; x < gridWidth; x++)
             {
                 Vector2 pos = new Vector2(start.x + x * xStep, start.y + y * yStep);
-                Instantiate(squarePrefab, pos, Quaternion.identity, transform);
+                GameObject spawnedSquare = Instantiate(squarePrefab, pos, Quaternion.identity, transform);
+                ClickableSquare cs = spawnedSquare.GetComponent<ClickableSquare>();
+                if (cs != null)
+                {
+                    cs.setSolveState(solvePattern[gridHeight-y-1,x]); //set all to be clicked
+                }
             }
+
+
         }
 
         // Spawn vertical lines
@@ -66,6 +202,13 @@ public class GridSpawner : MonoBehaviour
                 line.transform.localScale = new Vector3(gridWidth * xStep, 0.05f, 1f);
 
             }
+
         }
+        // for (int y = 0; y <= gridHeight; y++)
+        // {
+        //     Vector2 pos = new Vector2(start.x + (gridWidth - 1) * xStep / 2f, start.y - yStep / 2f + y * yStep);
+   
+        // }
+
     }
 }
