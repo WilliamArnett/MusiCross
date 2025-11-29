@@ -5,7 +5,7 @@ m_ProjectFiles:
     m_ContentTrackingEnabled: 1
     m_ModificationDate:
       serializedVersion: 2
-      ticks: 639000504380000000
+      ticks: 639000517120000000
     m_Hash: 1515549601
   m_LockFileStatus:
     m_FilePath: /Users/trinhpham/Documents/GitHub/MusiCross/MusicCross/Packages/packages-lock.json
@@ -13,7 +13,7 @@ m_ProjectFiles:
     m_ContentTrackingEnabled: 1
     m_ModificationDate:
       serializedVersion: 2
-      ticks: 639000504410000000
+      ticks: 639000517120000000
     m_Hash: 2671941888
 m_EmbeddedPackageManifests:
   m_ManifestsStatus: {}
