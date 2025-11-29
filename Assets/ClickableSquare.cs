@@ -59,7 +59,10 @@ public class ClickableSquare : MonoBehaviour
         // if (Input.GetMouseButtonDown(2))
         //     Debug.Log("Pressed middle-click.");
     }
-
+    public void SetColor(Color color)
+    {
+        clickedColor = color;
+    }
     void HandleClick(int mousebutton)
     {
         Vector3 world = Camera.main.ScreenToWorldPoint(Input.mousePosition);

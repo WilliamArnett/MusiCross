@@ -12,7 +12,7 @@ public class GridSpawner : MonoBehaviour
     public int gridHeight;
     public float spacing = 1.1f; // space between squares
     public float padding = 0.1f;
-
+    public Color gridColor;
     private string[] rowHintNumbers;
     private string[] colHintNumbers;
     // private int[,] solvePattern = {
@@ -29,16 +29,16 @@ public class GridSpawner : MonoBehaviour
 
     // };
     private int[,] solvePattern = {
-        {0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-        {0,0,0,0,1,1,1,1,1,0,0,0,0,0},
-        {0,0,0,1,1,1,1,1,1,0,0,0,0,0},
-        {0,0,0,1,0,0,0,0,1,0,0,0,0,0},
-        {0,0,0,1,0,0,0,0,1,0,0,0,0,0},
-        {0,0,0,1,0,0,0,0,1,0,0,0,0,0},
-        {0,0,0,1,0,0,1,1,1,0,0,0,0,0},
-        {0,1,1,1,0,0,1,1,1,0,0,0,0,0},
-        {0,1,1,1,0,0,0,0,0,0,0,0,0,0},
-        {0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+        {0,0,0,0,0,0,0,0,0,0},
+        {0,0,0,0,1,1,1,1,1,0},
+        {0,0,0,1,1,1,1,1,1,0},
+        {0,0,0,1,0,0,0,0,1,0},
+        {0,0,0,1,0,0,0,0,1,0},
+        {0,0,0,1,0,0,0,0,1,0},
+        {0,0,0,1,0,0,1,1,1,0},
+        {0,1,1,1,0,0,1,1,1,0},
+        {0,1,1,1,0,0,0,0,0,0},
+        {0,0,0,0,0,0,0,0,0,0},
 
     };
     void GenHintNumbers()
@@ -47,9 +47,9 @@ public class GridSpawner : MonoBehaviour
         colHintNumbers = new string[gridWidth];
         string defaultText;
         // bool counting = false;
-        int cellcount = 0;
+        int cellcount = 0;  //Running total of cells seen, reset on a blank cell
         int howManySegments;
-        for (int i = 0; i < gridHeight; i++)
+        for (int i = 0; i < gridHeight; i++)    //Loop over each row
         {
             howManySegments = 0;
             defaultText = "";
@@ -59,9 +59,9 @@ public class GridSpawner : MonoBehaviour
                 {
                     cellcount++;
                 }
-                else
+                else //Non filled in square state
                 {
-                    if (cellcount != 0)
+                    if (cellcount != 0) //Previous cells were red
                     {
                         defaultText += " " + cellcount.ToString();
                         howManySegments++;
@@ -83,7 +83,7 @@ public class GridSpawner : MonoBehaviour
             rowHintNumbers[i] = defaultText;
             // Debug.Log("Row " + i.ToString() + "with " + howManySegments.ToString()+ "segments : " + defaultText);
         }
-        for (int i = 0; i < gridWidth; i++)
+        for (int i = 0; i < gridWidth; i++) //Loop over each column
         {
             howManySegments = 0;
             defaultText = "";
@@ -97,7 +97,7 @@ public class GridSpawner : MonoBehaviour
                 {
                     if (cellcount != 0)
                     {
-                        defaultText += " " + cellcount.ToString();
+                        defaultText += "\n" + cellcount.ToString();
                         howManySegments++;
                     }
                     cellcount = 0;
@@ -105,7 +105,7 @@ public class GridSpawner : MonoBehaviour
             }
             if (cellcount != 0)
             {
-                defaultText += " " + cellcount.ToString();
+                defaultText += "\n" + cellcount.ToString();
                 howManySegments++;
             }
             cellcount = 0;
@@ -116,6 +116,7 @@ public class GridSpawner : MonoBehaviour
             }
             colHintNumbers[i] = defaultText;
         }
+        // Debugging
         for (int k = 0; k < gridHeight; k++)
         {
             Debug.Log("Row " + k.ToString() + ": " + rowHintNumbers[k]);
@@ -124,6 +125,7 @@ public class GridSpawner : MonoBehaviour
         {
             Debug.Log("Col " + k.ToString() + ": "+colHintNumbers[k]);           
         }
+        //
     }
     void Start()
     {
@@ -147,6 +149,7 @@ public class GridSpawner : MonoBehaviour
         // Spawn squares
         for (int y = 0; y < gridHeight; y++)
         {
+            //Generate horizontal labels
             Vector3 labelPos = new Vector3(start.x, start.y + y * yStep, 0f);
             GameObject label = Instantiate(numberLabelPrefab, labelPos, Quaternion.identity, transform);
             var tmp = label.GetComponent<TextMeshPro>();
@@ -166,10 +169,24 @@ public class GridSpawner : MonoBehaviour
                 if (cs != null)
                 {
                     cs.setSolveState(solvePattern[gridHeight-y-1,x]); //set all to be clicked
+                    cs.SetColor(gridColor);
                 }
             }
-
-
+        }
+        //Vertical grid numbers
+        for(int x = 0; x < gridWidth; x++)
+        {
+            Vector3 labelPos = new Vector3(start.x + x * xStep, start.y + gridHeight * yStep * 2-0.5f, 0f);
+            GameObject label = Instantiate(numberLabelPrefab, labelPos, Quaternion.identity, transform);
+            var tmp = label.GetComponent<TextMeshPro>();
+            tmp.text = colHintNumbers[x];
+            tmp.ForceMeshUpdate();
+            Bounds b = tmp.textBounds;
+            label.transform.position = new Vector3(label.transform.position.x, label.transform.position.y, 0);
+            tmp.alignment = TextAlignmentOptions.Bottom;
+            tmp.color = Color.black;
+            tmp.fontSize = 40f;
+            label.transform.localScale = Vector3.one * 0.2f;
         }
 
         // Spawn vertical lines
