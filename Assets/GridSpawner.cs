@@ -1,4 +1,3 @@
-using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -156,12 +155,13 @@ public class GridSpawner : MonoBehaviour
             label.transform.position = new Vector3(start.x -squareSize.x*(10.7f), label.transform.position.y, 0);
             tmp.alignment = TextAlignmentOptions.Right;
             tmp.color = Color.black;
-            tmp.fontSize = 40f;
+            tmp.fontSize = 30f;
             label.transform.localScale = Vector3.one * 0.2f;
             for (int x = 0; x < gridWidth; x++)
             {
                 Vector2 pos = new Vector2(start.x + x * xStep, start.y + y * yStep);
                 GameObject spawnedSquare = Instantiate(squarePrefab, pos, Quaternion.identity, transform);
+                //spawnedSquare.transform.localScale = new Vector3(0.96f, 0.96f, 0.96f); // MIKHAIL WAS HERE
                 ClickableSquare cs = spawnedSquare.GetComponent<ClickableSquare>();
                 if (cs != null)
                 {
@@ -172,6 +172,7 @@ public class GridSpawner : MonoBehaviour
 
         }
 
+        /**
         // Spawn vertical lines
         for (int x = 0; x <= gridWidth; x++)
         {
@@ -204,6 +205,8 @@ public class GridSpawner : MonoBehaviour
             }
 
         }
+
+        **/
         // for (int y = 0; y <= gridHeight; y++)
         // {
         //     Vector2 pos = new Vector2(start.x + (gridWidth - 1) * xStep / 2f, start.y - yStep / 2f + y * yStep);
